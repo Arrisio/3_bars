@@ -45,7 +45,7 @@ def get_closest_bar(filepath):
     print("Введите вашу долготу (по умолчанию {})".format(default_longtitude))
     longitude = float(input() or default_longtitude)
     (distance, idx) = geopos_KDTree.query((longitude, latitude), k=1)
-    print (" Ближайший бар {}, расстояние до него {:.0f} метров".format(bars_names[idx], distance * 111e3))
+    print (" Ближайший бар {}, расстояние до него {:.0f} метров".format(bars_names[idx], distance * 111e3)) # в одном градусе 111 км.
 
 def enter_filepath():
     default_file_path = os.path.join(os.getcwd(),'bars_geodata.pkl')
@@ -54,12 +54,12 @@ def enter_filepath():
     return file or default_file_path
 
 if __name__ == '__main__':
-    default_ms= """Введите одну из комманд: 
+    start_ms= """Введите одну из комманд: 
         load_data        : Загрузка данных с apidata.mos.ru/ 
-        get_biggest_bar  : возвращает наибольший бар и его геокоордлинаты 
-        get_smallest_bar : возвращает наименьший бар и его геокоордлинаты
-        get_closest_bar  : возвращает ближайший бар и его геокоордлинаты"""
-    print(default_ms)
+        get_biggest_bar  : Возвращает бар с наибольшим кол-вом посадочных мест 
+        get_smallest_bar : Возвращает бар с наименьшим кол-вом посадочных мест 
+        get_closest_bar  : возвращает ближайший бар и расстояние до него"""
+    print(start_ms)
     mission = input()
     if mission == 'load_data':
         data_file = enter_filepath()
