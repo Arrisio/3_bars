@@ -10,12 +10,12 @@ import scipy.spatial as spatial
 
 def load_data(filepath):
     print("Введите свой токен для сайта apidata.mos.ru")
-    token = input()
-    url = 'https://apidata.mos.ru/v1/features/1796?api_key='+token
+    url = 'https://apidata.mos.ru/v1/features/1796'
+    rest_params = {'api_key': input()}
     try:
-        request_response = requests.get(url)
+        request_response = requests.get(url, params=rest_params)
         request_data = request_response.json()
-        geopos_kdtree = spatial.KDTree(
+        points_tree = spatial.KDTree(
             [bar.get('geometry').get('coordinates')
              for bar in request_data.get('features')]
         )
@@ -28,7 +28,7 @@ def load_data(filepath):
 
         with open(filepath, 'wb') as fl:
             pickle.dump(
-                file=fl, obj=(bars_names, bars_seat_counts, geopos_kdtree)
+                file=fl, obj=(bars_names, bars_seat_counts, points_tree)
             )
             print('Данные о барах и их геокоординаты записаны в файл {}'
                   .format(filepath)
@@ -58,14 +58,14 @@ def get_smallest_bar(filepath):
 
 def get_closest_bar(filepath):
     with open(filepath, 'rb') as fl:
-        (bars_names, bars_seat_counts, geopos_kdtree) = pickle.load(fl)
-    default_latitude = geopos_kdtree.data[0][1]
-    default_longtitude = geopos_kdtree.data[0][0]
+        (bars_names, bars_seat_counts, points_tree) = pickle.load(fl)
+    default_latitude = points_tree.data[0][1]
+    default_longtitude = points_tree.data[0][0]
     print("Введите вашу широту (по умолчанию {})".format(default_latitude))
     latitude = float(input() or default_latitude)
     print("Введите вашу долготу (по умолчанию {})".format(default_longtitude))
     longitude = float(input() or default_longtitude)
-    (distance, idx) = geopos_KDTree.query((longitude, latitude), k=1)
+    (distance, idx) = points_tree.query((longitude, latitude), k=1)
     # distance * 111e3  , т.к. в одном градусе 111 км.
     print(" Ближайший бар {}, расстояние до него {:.0f} метров"
           .format(bars_names[idx], distance * 111e3)
@@ -75,8 +75,7 @@ def get_closest_bar(filepath):
 def enter_filepath():
     default_file_path = os.path.join(os.getcwd(), 'bars_geodata.pkl')
     print("Введите путь к файлу (по умолчанию {})".format(default_file_path))
-    file = input()
-    return file or default_file_path
+    return input() or default_file_path
 
 
 if __name__ == '__main__':
