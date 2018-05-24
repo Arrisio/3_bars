@@ -1,4 +1,3 @@
-import json
 import os
 import pickle
 import requests
@@ -26,13 +25,10 @@ def load_data(filepath):
             [bar.get('properties').get('Attributes').get('SeatsCount')
              for bar in request_data.get('features')]
 
-        with open(filepath, 'wb') as fl:
-            pickle.dump(
-                file=fl, obj=(bars_names, bars_seat_counts, points_tree)
-            )
-            print('Данные о барах и их геокоординаты записаны в файл {}'
-                  .format(filepath)
-                  )
+        pickle.dump(file=open(filepath, 'wb'),
+                    obj=(bars_names, bars_seat_counts, points_tree))
+        print('Данные о барах и их геокоординаты записаны в файл {}'
+              .format(filepath))
 
     except ValueError as e:
         print("Не могу скачать или рапокавать данные."
@@ -40,25 +36,23 @@ def load_data(filepath):
 
 
 def get_biggest_bar(filepath):
-    with open(filepath, 'rb') as fl:
-        (bars_names, bars_seat_counts, _) = pickle.load(fl)
-        max_seats = max(bars_seat_counts)
-        print("Наибольшый бар: {} , кол-во мест: {}"
+    (bars_names, bars_seat_counts, _) = pickle.load(open(filepath, 'rb'))
+    max_seats = max(bars_seat_counts)
+    print("Наибольшый бар: {} , кол-во мест: {}"
               .format(bars_names[bars_seat_counts.index(max_seats)], max_seats)
               )
 
 
 def get_smallest_bar(filepath):
-    with open(filepath, 'rb') as fl:
-        (bars_names, bars_seat_counts, _) = pickle.load(fl)
+    (bars_names, bars_seat_counts, _) = pickle.load(open(filepath, 'rb'))
     min_seats = min(bars_seat_counts)
     print("Наименьший бар: {} , кол-во мест: {}"
           .format(bars_names[bars_seat_counts.index(min_seats)], min_seats))
 
 
 def get_closest_bar(filepath):
-    with open(filepath, 'rb') as fl:
-        (bars_names, bars_seat_counts, points_tree) = pickle.load(fl)
+    (bars_names, bars_seat_counts, points_tree) =\
+        pickle.load(open(filepath, 'rb'))
     default_latitude = points_tree.data[0][1]
     default_longtitude = points_tree.data[0][0]
     print("Введите вашу широту (по умолчанию {})".format(default_latitude))
