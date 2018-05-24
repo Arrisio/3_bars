@@ -1,6 +1,1 @@
-json
-os
-pickle
-requests
-numpy as np
-scipy
+scipy==1.0.1
