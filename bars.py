@@ -53,8 +53,7 @@ def get_smallest_bar(filepath):
 def get_closest_bar(filepath):
     (bars_names, bars_seat_counts, points_tree) =\
         pickle.load(open(filepath, 'rb'))
-    default_latitude = points_tree.data[0][1]
-    default_longtitude = points_tree.data[0][0]
+    (default_longtitude, default_latitude) = points_tree.data.mean(axis=0)
     print("Введите вашу широту (по умолчанию {})".format(default_latitude))
     latitude = float(input() or default_latitude)
     print("Введите вашу долготу (по умолчанию {})".format(default_longtitude))
