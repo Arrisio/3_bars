@@ -54,15 +54,17 @@ def get_closest_bar(filepath):
     (bars_names, bars_seat_counts, points_tree) =\
         pickle.load(open(filepath, 'rb'))
     (default_longtitude, default_latitude) = points_tree.data.mean(axis=0)
+
     print("Введите вашу широту (по умолчанию {})".format(default_latitude))
     latitude = float(input() or default_latitude)
+
     print("Введите вашу долготу (по умолчанию {})".format(default_longtitude))
     longitude = float(input() or default_longtitude)
+
     (distance, idx) = points_tree.query((longitude, latitude), k=1)
-    # distance * 111e3  , т.к. в одном градусе 111 км.
     print(" Ближайший бар {}, расстояние до него {:.0f} метров"
           .format(bars_names[idx], distance * 111e3)
-          )
+          )# distance * 111e3  , т.к. в одном градусе 111 км.
 
 
 def enter_filepath():
