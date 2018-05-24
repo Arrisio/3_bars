@@ -15,7 +15,7 @@ def load_data(filepath):
     try:
         request_response = requests.get(url)
         request_data = request_response.json()
-        geopos_KDTree = spatial.KDTree(
+        geopos_kdtree = spatial.KDTree(
             [bar.get('geometry').get('coordinates')
              for bar in request_data.get('features')]
         )
@@ -28,7 +28,7 @@ def load_data(filepath):
 
         with open(filepath, 'wb') as fl:
             pickle.dump(
-                file=fl, obj=(bars_names, bars_seat_counts, geopos_KDTree)
+                file=fl, obj=(bars_names, bars_seat_counts, geopos_kdtree)
             )
             print('Данные о барах и их геокоординаты записаны в файл {}'
                   .format(filepath)
@@ -58,9 +58,9 @@ def get_smallest_bar(filepath):
 
 def get_closest_bar(filepath):
     with open(filepath, 'rb') as fl:
-        (bars_names, bars_seat_counts, geopos_KDTree) = pickle.load(fl)
-    default_latitude = geopos_KDTree.data[0][1]
-    default_longtitude = geopos_KDTree.data[0][0]
+        (bars_names, bars_seat_counts, geopos_kdtree) = pickle.load(fl)
+    default_latitude = geopos_kdtree.data[0][1]
+    default_longtitude = geopos_kdtree.data[0][0]
     print("Введите вашу широту (по умолчанию {})".format(default_latitude))
     latitude = float(input() or default_latitude)
     print("Введите вашу долготу (по умолчанию {})".format(default_longtitude))
