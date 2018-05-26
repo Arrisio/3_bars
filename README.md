@@ -1,10 +1,12 @@
 # Ближайшие бары
 
-Скрипт выполняет одну из слудеющих функцций:
-1) Скачивает данные а барах с сайта apidata.mos.ru (требуется токен) и сохраняет их на диск в собственном формате
-2) Возвращает бар с наибольшим кол-вом посадочных мест
-3) Возвращает бар с наименьшим кол-вом посадочных мест
-4) Возвращает ближайший бар и расстояние до него
+Скрипт выполняет следующие функции
+1) Возвращает бар с наибольшим кол-вом посадочных мест
+2) Возвращает бар с наименьшим кол-вом посадочных мест
+3) Возвращает  бар, ближайшей к точке , координаты которой будут указаны при запуске скрипты.
+
+Для работы требуются данные о барах, файл с которыми находится в текущей директории.
+При желении, скрип имеет возможность скачать данные с https://devman.org/
 
 # Как запустить
 
@@ -13,22 +15,27 @@
 Запуск на Linux:
 
 ```bash
-
 $ python bars.py # possibly requires call of python3 executive instead of just python
-Введите одну из комманд:
-        load_data        : Загрузка данных с apidata.mos.ru/
-        get_biggest_bar  : Возвращает бар с наибольшим кол-вом посадочных мест
-        get_smallest_bar : Возвращает бар с наименьшим кол-вом посадочных мест
-        get_closest_bar  : Возвращает ближайший бар и расстояние до него
-get_closest_bar
-Введите путь к файлу (по умолчанию D:\projects\devmanorg\3_bars\bars_geodata.pkl)
+usage: bars.py [-h] [-d] [-f FILEPATH] [-lat LATITUDE] [-long LONGTITUDE]
 
-Введите вашу широту (по умолчанию 55.824708)
-55.884708
-Введите вашу долготу (по умолчанию 37.529659)
-37.829659
- Ближайший бар ПИВО-ВОДЫ, расстояние до него 8193 метров
+optional arguments:
+  -h, --help        show this help message and exit
+  -d                If set data will be downloaded from
+                    https://devman.org/fshare/1503831681/4/
+  -f FILEPATH       Filepath with data, "bars.json" by default
+  -lat LATITUDE     You latitude. If not set it will be generated randomly
+  -long LONGTITUDE  You longtitude. If not set it will be generated randomly
 
+```
+
+```bash
+$ python bars.py -d
+Download from Devman
+Наибольший бар: Спорт бар «Красная машина»
+Наименьший бар: БАР. СОКИ
+Ближайший бар: Бар «Адамов Роман Анатольевич»
+
+Process finished with exit code 0
 ```
 
 Запуск на Windows происходит аналогично.
