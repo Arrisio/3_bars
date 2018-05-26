@@ -43,7 +43,7 @@ def get_closest_bar(bars_data, longtitude, latitude):
     (bar['geometry']['coordinates'][0] - longtitude) ** 2 +
     (bar['geometry']['coordinates'][1] - latitude) ** 2)\
         ['properties']['Attributes']['Name']
-
+ 9
 
 def validate_latitude(lat):
     lat = float(lat)
