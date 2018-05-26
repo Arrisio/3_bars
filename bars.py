@@ -19,7 +19,10 @@ def load_data(filepath):
     try:
         return json.load(open(filepath, 'r', encoding='UTF8'))['features']
     except ValueError as e:
-        print('Файл {} не существует или его формат не соответсвует ожидаемому'
+        print('Не могу прочитать данные из файла {}'
+              .format(filepath))
+    except OSError  as e:
+        print('Файл {} не существует '
               .format(filepath))
 
 
@@ -93,10 +96,10 @@ if __name__ == '__main__':
         bars_data = download_bars_json()
         print('Download from Devman')
     else:
+        print('Load from file')
         bars_data = load_data(params.filepath)
-        print('load from file')
-
-    print('Наибольший бар: {}'.format(get_biggest_bar(bars_data)))
-    print('Наименьший бар: {}'.format(get_smallest_bar(bars_data)))
-    print('Ближайший бар: {}'.format(
-        get_closest_bar(bars_data, params.latitude, params.longtitude)))
+    if bars_data:
+        print('Наибольший бар: {}'.format(get_biggest_bar(bars_data)))
+        print('Наименьший бар: {}'.format(get_smallest_bar(bars_data)))
+        print('Ближайший бар: {}'.format(
+            get_closest_bar(bars_data, params.latitude, params.longtitude)))
