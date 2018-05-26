@@ -21,7 +21,7 @@ def load_data(filepath):
     except ValueError as e:
         print('Не могу прочитать данные из файла {}'
               .format(filepath))
-    except OSError  as e:
+    except OSError as e:
         print('Файл {} не существует '
               .format(filepath))
 
@@ -43,11 +43,13 @@ def get_closest_bar(bars_data, longtitude, latitude):
     (bar['geometry']['coordinates'][0] - longtitude) ** 2 +
     (bar['geometry']['coordinates'][1] - latitude) ** 2)\
         ['properties']['Attributes']['Name']
- 9
+
 
 def validate_latitude(lat):
+    MIN_LATITUDE = -90
+    MAX_LATITUDE = 90
     lat = float(lat)
-    if lat < -90 or lat > 90:
+    if lat < MIN_LATITUDE or lat > MAX_LATITUDE:
         raise argparse.ArgumentTypeError("Latitude must be between"
                                          " -90 and 90 degrees")
     return lat
@@ -55,7 +57,9 @@ def validate_latitude(lat):
 
 def validate_longtitude(long):
     long = float(long)
-    if long < -180 or long > 180:
+    MIN_LONGTITUDE = -180
+    MAX_LONGTITUDE = 180
+    if long < MIN_LONGTITUDE or long > MAX_LONGTITUDE:
         raise argparse.ArgumentTypeError("Longtitude must be between"
                                          " -180 and 180 degrees")
     return long
