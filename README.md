@@ -6,7 +6,7 @@
 3) Возвращает  бар, ближайшей к точке , координаты которой будут указаны при запуске скрипты.
 
 Для работы требуются данные о барах, файл с которыми находится в текущей директории.
-При желении, скрип имеет возможность скачать данные с https://devman.org/
+Если необходимо, данные можно скачать с сайта [devman](https://devman.org/) или https://apidata.mos.ru/v1/features/1796?api_key={place_your_API_key_here} (нужен выданый при регистрации токен)
 
 # Как запустить
 
@@ -20,8 +20,6 @@ usage: bars.py [-h] [-d] [-f FILEPATH] [-lat LATITUDE] [-long LONGTITUDE]
 
 optional arguments:
   -h, --help        show this help message and exit
-  -d                If set data will be downloaded from
-                    https://devman.org/fshare/1503831681/4/
   -f FILEPATH       Filepath with data, "bars.json" by default
   -lat LATITUDE     You latitude. If not set it will be generated randomly
   -long LONGTITUDE  You longtitude. If not set it will be generated randomly
@@ -29,11 +27,10 @@ optional arguments:
 ```
 
 ```bash
-$ python bars.py -d
-Download from Devman
+$ python bars.py -f bars.json -lat 55.56 -long 37.643
 Наибольший бар: Спорт бар «Красная машина»
 Наименьший бар: БАР. СОКИ
-Ближайший бар: Бар «Адамов Роман Анатольевич»
+Ближайший бар: БАР «ПИВНОЙ ПОГРЕБОК»
 
 Process finished with exit code 0
 ```

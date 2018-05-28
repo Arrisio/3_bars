@@ -1,109 +1,103 @@
-import os
 import json
 import argparse
-import requests
 from random import uniform
-
-
-def download_bars_json():
-    url = 'https://devman.org/fshare/1503831681/4/'
-    try:
-        bars_data = requests.get(url).json()
-        return bars_data['features']
-    except ValueError as e:
-        print('Не могу скачать или распокавать данные,'
-              'попробуйте открыть в браузере '+url)
+from functools import partial
 
 
 def load_data(filepath):
-    try:
-        return json.load(open(filepath, 'r', encoding='UTF8'))['features']
-    except ValueError as e:
-        print('Не могу прочитать данные из файла {}'
-              .format(filepath))
-    except OSError as e:
-        print('Файл {} не существует '
-              .format(filepath))
+    with open(filepath, 'r', encoding='UTF8') as file_handler:
+        return json.load(file_handler)['features']
 
 
 def get_biggest_bar(bars_data):
     return max(bars_data,
-               key=lambda bar: bar['properties']['Attributes']['SeatsCount'])\
-        ['properties']['Attributes']['Name']
+               key=lambda bar: bar['properties']['Attributes']['SeatsCount']
+               )
 
 
 def get_smallest_bar(bars_data):
     return min(bars_data,
-               key=lambda bar: bar['properties']['Attributes']['SeatsCount'])\
-        ['properties']['Attributes']['Name']
+               key=lambda bar: bar['properties']['Attributes']['SeatsCount']
+               )
 
 
 def get_closest_bar(bars_data, longtitude, latitude):
-    return min(bars_data, key=lambda bar:
-    (bar['geometry']['coordinates'][0] - longtitude) ** 2 +
-    (bar['geometry']['coordinates'][1] - latitude) ** 2)\
-        ['properties']['Attributes']['Name']
+    return min(
+        bars_data, key=lambda bar:
+        (bar['geometry']['coordinates'][0] - longtitude) ** 2 +
+        (bar['geometry']['coordinates'][1] - latitude) ** 2
+    )
 
 
-def validate_latitude(lat):
-    MIN_LATITUDE = -90
-    MAX_LATITUDE = 90
-    lat = float(lat)
-    if lat < MIN_LATITUDE or lat > MAX_LATITUDE:
-        raise argparse.ArgumentTypeError("Latitude must be between"
-                                         " -90 and 90 degrees")
-    return lat
+def validate_gps_coord(coordinate, coord_type):
+    coordinate = float(coordinate)
+
+    gps_coord_metadata = {
+        'Latitude': {'min_val': -90, 'max_val': 90},
+        'Longtitude': {'min_val': -180, 'max_val': 180}
+    }
+
+    min_val = gps_coord_metadata[coord_type]['min_val']
+    max_val = gps_coord_metadata[coord_type]['max_val']
+    if coordinate < min_val or coordinate > max_val:
+        raise argparse.ArgumentTypeError(
+            '{} must be between  {} and {} degrees'.format(
+                coord_type, min_val, max_val)
+        )
+    return coordinate
 
 
-def validate_longtitude(long):
-    long = float(long)
-    MIN_LONGTITUDE = -180
-    MAX_LONGTITUDE = 180
-    if long < MIN_LONGTITUDE or long > MAX_LONGTITUDE:
-        raise argparse.ArgumentTypeError("Longtitude must be between"
-                                         " -180 and 180 degrees")
-    return long
+validate_latitude = partial(validate_gps_coord, coord_type='Latitude')
+validate_longtitude = partial(validate_gps_coord, coord_type='Longtitude')
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '-f', action='store',
+        dest='filepath',
+        help='Filepath with data, "bars.json" by default',
+        default='bars.json'
+    )
+
+    parser.add_argument(
+        '-lat', action='store',
+        type=validate_latitude,
+        dest='latitude',
+        help='You latitude. If not set, it will be generated randomly',
+        default=uniform(-90, 90)
+    )
+
+    parser.add_argument(
+        '-long', action='store',
+        type=validate_longtitude,
+        dest='longtitude',
+        help='You longtitude. If not set it will be generated randomly',
+        default=uniform(-180, 180)
+    )
+
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    params = parse_arguments()
 
-    parser.add_argument('-d', action='store_true',
-                        dest='flag_download',
-                        help='If set data will be downloaded'
-                             ' from https://devman.org/fshare/1503831681/4/')
-
-    parser.add_argument('-f', action='store',
-                        dest='filepath',
-                        help='Filepath with data, "bars.json" by default',
-                        default='bars.json'
-                        )
-
-    parser.add_argument('-lat', action='store',
-                        type=validate_latitude,
-                        dest='latitude',
-                        help='You latitude. '
-                             'If not set it will be generated randomly',
-                        default=uniform(-180, 180)
-                        )
-
-    parser.add_argument('-long', action='store',
-                        type=validate_longtitude,
-                        dest='longtitude',
-                        help='You longtitude. '
-                             'If not set it will be generated randomly',
-                        default=uniform(0, 360)
-                        )
-    params = parser.parse_args()
-
-    if params.flag_download:
-        bars_data = download_bars_json()
-        print('Download from Devman')
-    else:
-        print('Load from file')
+    try:
         bars_data = load_data(params.filepath)
-    if bars_data:
-        print('Наибольший бар: {}'.format(get_biggest_bar(bars_data)))
-        print('Наименьший бар: {}'.format(get_smallest_bar(bars_data)))
-        print('Ближайший бар: {}'.format(
-            get_closest_bar(bars_data, params.latitude, params.longtitude)))
+    except ValueError:
+        exit('Не могу прочитать данные из файла {}'.format(params.filepath))
+    except OSError:
+        exit('Файл {} не существует '.format(params.filepath))
+
+    print('Наибольший бар: {}'.format(
+        get_biggest_bar(bars_data)['properties']['Attributes']['Name'])
+    )
+    print('Наименьший бар: {}'.format(
+        get_smallest_bar(bars_data)['properties']['Attributes']['Name'])
+    )
+    print('Ближайший бар: {}'.format(
+        get_closest_bar(bars_data, params.longtitude, params.latitude
+                        )['properties']['Attributes']['Name']
+        )
+    )
