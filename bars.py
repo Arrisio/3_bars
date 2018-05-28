@@ -3,6 +3,11 @@ import argparse
 from random import uniform
 from functools import partial
 
+GPS_COORD_METADATA = {
+    'Latitude': {'min_val': -90, 'max_val': 90},
+    'Longtitude': {'min_val': -180, 'max_val': 180}
+}
+
 
 def load_data(filepath):
     with open(filepath, 'r', encoding='UTF8') as file_handler:
@@ -32,13 +37,8 @@ def get_closest_bar(bars_data, longtitude, latitude):
 def validate_gps_coord(coordinate, coord_type):
     coordinate = float(coordinate)
 
-    gps_coord_metadata = {
-        'Latitude': {'min_val': -90, 'max_val': 90},
-        'Longtitude': {'min_val': -180, 'max_val': 180}
-    }
-
-    min_val = gps_coord_metadata[coord_type]['min_val']
-    max_val = gps_coord_metadata[coord_type]['max_val']
+    min_val = GPS_COORD_METADATA[coord_type]['min_val']
+    max_val = GPS_COORD_METADATA[coord_type]['max_val']
     if coordinate < min_val or coordinate > max_val:
         raise argparse.ArgumentTypeError(
             '{} must be between  {} and {} degrees'.format(
@@ -66,7 +66,10 @@ def parse_arguments():
         type=validate_latitude,
         dest='latitude',
         help='You latitude. If not set, it will be generated randomly',
-        default=uniform(-90, 90)
+        default=uniform(
+            GPS_COORD_METADATA['Latitude']['min_val'],
+            GPS_COORD_METADATA['Latitude']['max_val']
+        )
     )
 
     parser.add_argument(
@@ -74,7 +77,10 @@ def parse_arguments():
         type=validate_longtitude,
         dest='longtitude',
         help='You longtitude. If not set it will be generated randomly',
-        default=uniform(-180, 180)
+        default=uniform(
+            GPS_COORD_METADATA['Longtitude']['min_val'],
+            GPS_COORD_METADATA['Longtitude']['max_val']
+        )
     )
 
     return parser.parse_args()
