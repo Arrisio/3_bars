@@ -3,11 +3,6 @@ import argparse
 from random import uniform
 from functools import partial
 
-GPS_COORD_METADATA = {
-    'Latitude': {'min_val': -90, 'max_val': 90},
-    'Longtitude': {'min_val': -180, 'max_val': 180}
-}
-
 
 def load_data(filepath):
     with open(filepath, 'r', encoding='UTF8') as file_handler:
@@ -15,15 +10,17 @@ def load_data(filepath):
 
 
 def get_biggest_bar(bars_data):
-    return max(bars_data,
-               key=lambda bar: bar['properties']['Attributes']['SeatsCount']
-               )
+    return max(
+        bars_data,
+        key=lambda bar: bar['properties']['Attributes']['SeatsCount']
+    )
 
 
 def get_smallest_bar(bars_data):
-    return min(bars_data,
-               key=lambda bar: bar['properties']['Attributes']['SeatsCount']
-               )
+    return min(
+        bars_data,
+        key=lambda bar: bar['properties']['Attributes']['SeatsCount']
+    )
 
 
 def get_closest_bar(bars_data, longtitude, latitude):
@@ -34,24 +31,33 @@ def get_closest_bar(bars_data, longtitude, latitude):
     )
 
 
-def validate_gps_coord(coordinate, coord_type):
-    coordinate = float(coordinate)
+def validate_gps_coord(coordinate, gps_coord_metadata):
+    try:
+        coordinate = float(coordinate)
+    except ValueError:
+        raise argparse.ArgumentTypeError('Coordinate is not numeric')
 
-    min_val = GPS_COORD_METADATA[coord_type]['min_val']
-    max_val = GPS_COORD_METADATA[coord_type]['max_val']
-    if coordinate < min_val or coordinate > max_val:
+    if (
+            coordinate < gps_coord_metadata['min_val'] or
+            coordinate > gps_coord_metadata['max_val']
+    ):
         raise argparse.ArgumentTypeError(
             '{} must be between  {} and {} degrees'.format(
-                coord_type, min_val, max_val)
+                gps_coord_metadata['name'],
+                gps_coord_metadata['min_val'],
+                gps_coord_metadata['max_val'])
         )
     return coordinate
 
 
-validate_latitude = partial(validate_gps_coord, coord_type='Latitude')
-validate_longtitude = partial(validate_gps_coord, coord_type='Longtitude')
-
-
 def parse_arguments():
+    latitude_metadata = {
+        'name': 'Latitude', 'min_val': -90, 'max_val': 90
+    }
+    longtitude_metadata = {
+        'name': 'Longtitude', 'min_val': -180, 'max_val': 180
+    }
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -63,24 +69,31 @@ def parse_arguments():
 
     parser.add_argument(
         '-lat', action='store',
-        type=validate_latitude,
+        type=partial(
+            validate_gps_coord,
+            gps_coord_metadata=latitude_metadata
+        ),
         dest='latitude',
         help='You latitude. If not set, it will be generated randomly',
         default=uniform(
-            GPS_COORD_METADATA['Latitude']['min_val'],
-            GPS_COORD_METADATA['Latitude']['max_val']
+            latitude_metadata['min_val'],
+            latitude_metadata['max_val'],
         )
     )
 
     parser.add_argument(
         '-long', action='store',
-        type=validate_longtitude,
+        type=partial(
+            validate_gps_coord,
+            gps_coord_metadata=longtitude_metadata
+        ),
         dest='longtitude',
         help='You longtitude. If not set it will be generated randomly',
         default=uniform(
-            GPS_COORD_METADATA['Longtitude']['min_val'],
-            GPS_COORD_METADATA['Longtitude']['max_val']
+            longtitude_metadata['min_val'],
+            longtitude_metadata['max_val']
         )
+
     )
 
     return parser.parse_args()
@@ -92,17 +105,17 @@ if __name__ == '__main__':
     try:
         bars_data = load_data(params.filepath)
     except ValueError:
-        exit('Не могу прочитать данные из файла {}'.format(params.filepath))
+        exit('can not read file {}'.format(params.filepath))
     except OSError:
-        exit('Файл {} не существует '.format(params.filepath))
+        exit('File {} not exists '.format(params.filepath))
 
-    print('Наибольший бар: {}'.format(
+    print('Bigger ber: {}'.format(
         get_biggest_bar(bars_data)['properties']['Attributes']['Name'])
     )
-    print('Наименьший бар: {}'.format(
+    print('Smallest bar: {}'.format(
         get_smallest_bar(bars_data)['properties']['Attributes']['Name'])
     )
-    print('Ближайший бар: {}'.format(
+    print('Closest bar: {}'.format(
         get_closest_bar(bars_data, params.longtitude, params.latitude
                         )['properties']['Attributes']['Name']
         )
